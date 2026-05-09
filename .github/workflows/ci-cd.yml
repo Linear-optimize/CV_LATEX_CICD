@@ -10,27 +10,22 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    permissions:
-      contents: write  # 添加权限，用于创建 Release
     
     steps:
       - uses: actions/checkout@master
         with:
           fetch-depth: 2
       
-      - name: Build Docker image
+      - name: Build and run with docker-compose
         run: |
-          docker build -t tex-builder:latest .
+          docker-compose up -d --build
+          docker-compose exec latex make run
       
-      - name: Run LaTeX compilation
-        run: |
-          docker run --rm \
-            -v ${{ github.workspace }}:/var/local/workspace \
-            tex-builder:latest \
-            make run
+      - name: Stop containers
+        run: docker-compose down
       
-      - name: List generated files
-        run: ls -la *.pdf 2>/dev/null || echo "No PDF files found"
+      - name: List generated PDFs
+        run: ls -la *.pdf
       
       - name: Create Release
         id: create_release
@@ -40,8 +35,7 @@ jobs:
         with:
           tag_name: master
           release_name: Release master
-          body: |
-            Auto-generated PDF from master branch
+          body: Auto-generated PDF
           draft: false
           prerelease: false
       
