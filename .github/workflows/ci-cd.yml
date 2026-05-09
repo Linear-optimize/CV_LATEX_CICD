@@ -11,12 +11,13 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # 关键：允许创建 Release
+      contents: write  # 允许创建 Release 并上传附件
     
     steps:
-      - uses: actions/checkout@master
+      - name: Checkout code
+        uses: actions/checkout@v4 # 建议使用更新的 v4 版本
         with:
-          fetch-depth: 2
+          fetch-depth: 0 # 获取完整历史以避免某些 git 错误
       
       - name: Build Docker image
         run: docker build -t latex-env:latest .
@@ -38,9 +39,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: master
-          release_name: Release master
-          body: Auto-generated PDF
+          # 使用构建号作为标签，例如 v1, v2，永远不会重复
+          tag_name: v${{ github.run_number }}
+          release_name: Release v${{ github.run_number }}
+          body: |
+            Auto-generated PDF from commit ${{ github.sha }}
+            Build number: ${{ github.run_number }}
           draft: false
           prerelease: false
       
