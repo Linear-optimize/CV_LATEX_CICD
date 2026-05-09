@@ -10,6 +10,9 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 添加权限，用于创建 Release
+    
     steps:
       - uses: actions/checkout@master
         with:
@@ -17,14 +20,17 @@ jobs:
       
       - name: Build Docker image
         run: |
-          docker build -t ghcr.io/linear-optimize/tex-builder:latest .
+          docker build -t tex-builder:latest .
       
       - name: Run LaTeX compilation
         run: |
           docker run --rm \
             -v ${{ github.workspace }}:/var/local/workspace \
-            ghcr.io/linear-optimize/tex-builder:latest \
+            tex-builder:latest \
             make run
+      
+      - name: List generated files
+        run: ls -la *.pdf 2>/dev/null || echo "No PDF files found"
       
       - name: Create Release
         id: create_release
@@ -35,13 +41,11 @@ jobs:
           tag_name: master
           release_name: Release master
           body: |
-            Changes in this Release
-            - First Change
-            - Second Change
+            Auto-generated PDF from master branch
           draft: false
           prerelease: false
       
-      - name: Upload Assets to Release with a wildcard
+      - name: Upload Assets to Release
         uses: csexton/release-asset-action@v2
         with:
           pattern: "*.pdf"
