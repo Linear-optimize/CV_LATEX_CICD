@@ -16,13 +16,11 @@ jobs:
         with:
           fetch-depth: 2
       
-      - name: Build and run with docker-compose
+      - name: Build and compile with docker compose
         run: |
-          docker-compose up -d --build
-          docker-compose exec latex make run
-      
-      - name: Stop containers
-        run: docker-compose down
+          docker compose up -d --build
+          docker compose exec latex make run
+          docker compose down
       
       - name: List generated PDFs
         run: ls -la *.pdf
