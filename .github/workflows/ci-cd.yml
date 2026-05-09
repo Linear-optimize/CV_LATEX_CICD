@@ -10,17 +10,24 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 关键：允许创建 Release
     
     steps:
       - uses: actions/checkout@master
         with:
           fetch-depth: 2
       
-      - name: Build and compile with docker compose
+      - name: Build Docker image
+        run: docker build -t latex-env:latest .
+      
+      - name: Run LaTeX compilation
         run: |
-          docker compose up -d --build
-          docker compose exec latex make run
-          docker compose down
+          docker run --rm \
+            -v ${{ github.workspace }}:/var/local/workspace \
+            -w /var/local/workspace \
+            latex-env:latest \
+            make run
       
       - name: List generated PDFs
         run: ls -la *.pdf
