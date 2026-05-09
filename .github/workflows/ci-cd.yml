@@ -24,7 +24,7 @@ jobs:
           docker run --rm \
             -v ${{ github.workspace }}:/var/local/workspace \
             ghcr.io/linear-optimize/tex-builder:latest \
-            make all
+            make run
       
       - name: Create Release
         id: create_release
