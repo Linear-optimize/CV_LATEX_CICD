@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  latex:
+    build: .
+    image: latex-env:latest
+    container_name: latex-container
+    volumes:
+      # 挂载当前项目目录到 workspace
+      - .:/var/local/workspace
+    working_dir: /var/local/workspace
+    stdin_open: true
+    tty: true
+    command: tail -f /dev/null
+    
+    environment:
+      - TZ=Asia/Shanghai
+      - LANG=C.UTF-8
+      - LC_ALL=C.UTF-8
